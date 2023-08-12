@@ -1,0 +1,32 @@
+{
+  "name": "videotion",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.ts",
+  "scripts": {
+    "start": "nodemon ./app.ts",
+    "dev": "ts-node app.ts",
+    "mp4": "ts-node merge.ts",
+    "create": "ts-node createSeprate.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.4.1",
+    "@types/request": "^2.48.8",
+    "@types/superagent": "^4.1.18",
+    "@types/swig": "^0.0.30",
+    "axios": "^1.4.0",
+    "child_process": "^1.0.2",
+    "express": "^4.18.2",
+    "fluent-ffmpeg": "^2.1.2",
+    "nodemon": "^3.0.1",
+    "progress": "^2.0.3",
+    "request": "^2.88.2",
+    "superagent": "^8.0.9",
+    "swig": "^1.4.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}
