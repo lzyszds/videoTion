@@ -42,7 +42,7 @@ function getVideo(urlData, i, index, urlPrefix, headers) {
         }
       });
     } catch (e) {
-      console.log('superagent');
+      console.log('superagent的问题|下载完成' + index);
     }
   })
 }
