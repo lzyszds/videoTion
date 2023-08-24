@@ -15,8 +15,6 @@ function getVideo(urlData, i, index, urlPrefix, headers) {
     let resa
     try {
       resa = await superagent.get(urlPrefix + urlData[i]).set(headers);
-
-
       // console.log(`正在爬取第${i}个视频`);
       var bar = new ProgressBar("  downloading [:bar]  :percent :etas", {
         complete: "=",

@@ -1,118 +1,105 @@
 <!DOCTYPE html="html">
 <html style="height: 100%">
-  <head>
-    <meta
-      charset="utf-8">
-      <!--<title>
-                                
-                                
-                                
-                                
-                                
-                                {{ title }}      </title>-->
-      <title>
-        欢迎来到视频爬取网站</title>
-      <style>
-        body {
-          height: 100%;
-          margin: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-        }
 
-        form {
-          width: 450px;
-          background: linear-gradient(180deg, #DCF9E0 0%, #FFFFFF 30.21%);
-          box-shadow: 0 187px 75px rgba(0, 0, 0, 0.01), 0 105px 63px rgba(0, 0, 0, 0.05), 0 47px 47px rgba(0, 0, 0, 0.09), 0 12px 26px rgba(0, 0, 0, 0.1), 0 0 0 rgba(0, 0, 0, 0.1), inset 0 1px 20px #9b4fff;
-          border-radius: 16px;
-          display: flex;
-          flex-direction: column;
-          padding: 40px;
-          border: 6px solid #000;
-        }
+<head>
+  <meta charset="utf-8">
+  <title>
+    欢迎来到视频爬取网站</title>
+  <style>
+    body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        label {
-          text-align: left;
-          font-size: 20px;
-          display: flex;
-          flex-direction: column;
-        }
+    form {
+      width: 450px;
+      background: linear-gradient(180deg, #DCF9E0 0%, #FFFFFF 30.21%);
+      box-shadow: 0 187px 75px rgba(0, 0, 0, 0.01), 0 105px 63px rgba(0, 0, 0, 0.05), 0 47px 47px rgba(0, 0, 0, 0.09), 0 12px 26px rgba(0, 0, 0, 0.1), 0 0 0 rgba(0, 0, 0, 0.1), inset 0 1px 20px #9b4fff;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      border: 6px solid #000;
+    }
 
-        textarea {
-          /* 设计一个 */
-          border: 3px solid #9b4fff;
-          border-radius: 5px;
-          padding: 5px;
-          width: 96%;
-          height: 100px;
-          margin-bottom: 10px;
-        }
+    label {
+      text-align: left;
+      font-size: 20px;
+      display: flex;
+      flex-direction: column;
+    }
 
-        input {
-          width: 100px;
-          height: 40px;
-          line-height: 28px;
-          padding: 0 5px 0 1rem;
-          border: 2px solid transparent;
-          border-radius: 8px;
-          outline: none;
-          border-color: #9b4fff;
-          color: #0d0c22;
-          transition: 0.3s ease;
-        }
+    textarea {
+      /* 设计一个 */
+      border: 3px solid #9b4fff;
+      border-radius: 5px;
+      padding: 5px;
+      width: 96%;
+      height: 100px;
+      margin-bottom: 10px;
+    }
 
-        .input::placeholder {
-          color: #9e9ea7;
-        }
+    input {
+      width: 100px;
+      height: 40px;
+      line-height: 28px;
+      padding: 0 5px 0 1rem;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      outline: none;
+      border-color: #9b4fff;
+      color: #0d0c22;
+      transition: 0.3s ease;
+    }
 
-        .input:focus,
-        input:hover {
-          outline: none;
-          border-color: #9b4fff;
-          background-color: #fff;
-          box-shadow: 0 0 0 4px rgb(234 76 137 / 10%);
-        }
+    .input::placeholder {
+      color: #9e9ea7;
+    }
 
-        .upgrade-btn {
-          display: flex;
-          flex-direction: row;
-          justify-content: center;
-          align-items: center;
-          margin: 100px auto 0;
-          width: 215px;
-          height: 40px;
-          background: #0bdd12;
-          box-shadow: 0 0.5px 0.5px #EFEFEF, 0 1px 0.5px rgba(239, 239, 239, 0.5);
-          border-radius: 7px;
-          border: 0;
-          outline: none;
-          color: #ffffff;
-          font-size: 13px;
-          font-weight: 600;
-          transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
-          cursor: pointer;
-        }
-      </style>
-    </head>
+    .input:focus,
+    input:hover {
+      outline: none;
+      border-color: #9b4fff;
+      background-color: #fff;
+      box-shadow: 0 0 0 4px rgb(234 76 137 / 10%);
+    }
 
-    <body>
-      <h1>欢迎来到视频爬取网站</h1>
-      <form
-        method="post" action="/search">
-        <!-- <label for="header" class="textarea">
-                                                <span>m3u8路径</span>
-                                                <textarea type="text"
-                                                  name="header">"'Origin': 'https://missav.com', 'Referer': 'https://missav.com/cn/pppd-985-uncensored-leak',"</textarea>
-                                              </label> -->
-        <label for="url" class="textarea">
-          <span>视频接口地址</span>
-          <textarea type="text" name="url">https://cdn152.akamai-content-network.com/bcdn_token=iAS4iQM_LY3beOneXElDBYLVg6ZbWEJ-oUMB2I7S_RU&expires=1689147993&token_path=%2Fd9305578-0e37-4bfd-b21e-1fd0623e0c0b%2F/d9305578-0e37-4bfd-b21e-1fd0623e0c0b/1280x720/video
+    .upgrade-btn {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      margin: 100px auto 0;
+      width: 215px;
+      height: 40px;
+      background: #0bdd12;
+      box-shadow: 0 0.5px 0.5px #EFEFEF, 0 1px 0.5px rgba(239, 239, 239, 0.5);
+      border-radius: 7px;
+      border: 0;
+      outline: none;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>欢迎来到视频爬取网站</h1>
+  <form method="post" action="/search">
+    <label for="url" class="textarea">
+      <span>视频接口地址</span>
+      <textarea type="text" name="url">https://cdn152.akamai-content-network.com/bcdn_token=iAS4iQM_LY3beOneXElDBYLVg6ZbWEJ-oUMB2I7S_RU&expires=1689147993&token_path=%2Fd9305578-0e37-4bfd-b21e-1fd0623e0c0b%2F/d9305578-0e37-4bfd-b21e-1fd0623e0c0b/1280x720/video
           </textarea>
-        </label>
-        <label for="headers">
-          <span>线程选择</span>
-          <textarea type="text" name="headers">
+    </label>
+    <label for="headers">
+      <span>线程选择</span>
+      <textarea type="text" name="headers">
             {
                           "accept": "*/*",
                           "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
@@ -126,19 +113,20 @@
                           "Referrer-Policy": "strict-origin-when-cross-origin"
                         }
           </textarea>
-        </label>
-        <label for="name">
-          <span>名字</span>
-          <input style="width: 96%;" type="text" name="name" value=""/>
-        </label>
-        <label for="thread">
-          <span>线程选择</span>
-          <input type="number" name="thread" value="20" max="20" min="1"/>
-        </label>
+    </label>
+    <label for="name">
+      <span>名字</span>
+      <input style="width: 96%;" type="text" name="name" value="" />
+    </label>
+    <label for="thread">
+      <span>线程选择</span>
+      <input type="number" name="thread" value="20" max="20" min="1" />
+    </label>
 
-        <button class="upgrade-btn" type="submit">提交</button>
-      </form>
-    </body>
+    <button class="upgrade-btn" type="submit">提交</button>
+  </form>
+</body>
 
-  </html>
+</html>
+
 </html>

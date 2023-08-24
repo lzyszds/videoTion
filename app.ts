@@ -4,7 +4,7 @@ import swig from "swig";
 import fs from "fs";
 import axios from "axios";
 import { Worker } from "worker_threads";
-import { merge } from './merge'
+// import { merge } from './merge'
 import https from 'https'
 const getVideo = require("./getVideo");
 
@@ -32,7 +32,7 @@ app.post("/search", async (req, res) => {
   let { url, thread, headers, name } = req.body;
   name = name.replaceAll(" ", '')
   try {
-    await merge(name)
+    // await merge(name)
   } catch {
     console.log('没有1');
   }
@@ -55,10 +55,14 @@ app.post("/search", async (req, res) => {
       downLoadPlan++
     }
     // merge()
+  }).catch((e: any) => {
+    console.log(`lzy  e:` + downLoadPlan, e)
+    downLoadPlan++
   })
   for (let i = 1; i < 20; i++) {
     const seprateThread = new Worker(__dirname + `/seprate/seprateThread${i}.js`);
     seprateThread.on("message", (result) => {
+      console.log(`lzy  result:`, result)
       downLoadPlan++
       if (downLoadPlan >= thread) {
         console.log('下载完成');
@@ -93,6 +97,9 @@ function splitArrayIntoEqualChunks(array: string[], numberOfChunks: number) {
 
   return result;
 }
+
+
+
 
 
 // // 封装递归方法

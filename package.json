@@ -7,7 +7,8 @@
     "start": "nodemon ./app.ts",
     "dev": "ts-node app.ts",
     "mp4": "ts-node merge.ts",
-    "create": "ts-node createSeprate.ts"
+    "create": "ts-node createSeprate.ts",
+    "imgToVideo": "ts-node imgToVideo.ts"
   },
   "author": "",
   "license": "ISC",
