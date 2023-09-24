@@ -29,20 +29,24 @@ function getVideo(urlData, i, index, urlPrefix, headers) {
       // 将二进制数据写入文件
       // 判断当前文件夹中是否有该文件
       // 如果有就直接写入
-      fs.appendFile(`./download/${index}.ts`, buffer, (err) => {
+      fs.appendFile(`./download/${index}.ts`, buffer, async (err) => {
         if (err) {
-          console.log(err);
-          throw err;
+          reject(err); // 将错误传递给 Promise 的拒绝处理
+          return;
         }
         if (i < urlData.length) {
-          getVideo(urlData, ++i, index, urlPrefix, headers);
+          try {
+            await getVideo(urlData, ++i, index, urlPrefix, headers);
+          } catch (error) {
+            reject(error); // 将错误传递给 Promise 的拒绝处理
+          }
         } else { // 提示用户下载完成
-          console.log('\n' + '下载完成video' + index + '\n');
           resolve('下载完成')
         }
       });
     } catch (e) {
-      console.log('superagent的问题|下载完成' + index);
+      reject('下载完成' + index)
+      // console.log('superagent的问题|下载完成' + index,);
     }
   })
 }

@@ -94,29 +94,29 @@
   <form method="post" action="/search">
     <label for="url" class="textarea">
       <span>视频接口地址</span>
-      <textarea type="text" name="url">https://cdn152.akamai-content-network.com/bcdn_token=iAS4iQM_LY3beOneXElDBYLVg6ZbWEJ-oUMB2I7S_RU&expires=1689147993&token_path=%2Fd9305578-0e37-4bfd-b21e-1fd0623e0c0b%2F/d9305578-0e37-4bfd-b21e-1fd0623e0c0b/1280x720/video
-          </textarea>
+      <textarea type="text"
+        name="url">https://ss06.techviba.com/stream/9/1C/WwcXWetTkFo2iszKhxVSLDujLs7Cx8Q2Qnu/hls1080/WwcXWetTkFo2iszKhxVSLDujLs7Cx8Q2Qnu1080.m3u8</textarea>
     </label>
     <label for="headers">
       <span>线程选择</span>
       <textarea type="text" name="headers">
-            {
-                          "accept": "*/*",
-                          "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
-                          "sec-ch-ua": "\"Not/A)Brand\";v=\"99\", \"Google Chrome\";v=\"115\", \"Chromium\";v=\"115\"",
-                          "sec-ch-ua-mobile": "?0",
-                          "sec-ch-ua-platform": "\"Windows\"",
-                          "sec-fetch-dest": "empty",
-                          "sec-fetch-mode": "cors",
-                          "sec-fetch-site": "cross-site",
-                          "Referer": "https://emturbovid.com/",
-                          "Referrer-Policy": "strict-origin-when-cross-origin"
-                        }
-          </textarea>
+          {
+            "accept": "*/*",
+            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "sec-ch-ua": "\"Not/A)Brand\";v=\"99\", \"Google Chrome\";v=\"115\", \"Chromium\";v=\"115\"",
+            "sec-ch-ua-mobile": "?0",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "cross-site",
+            "Referer": "https://emturbovid.com/",
+            "Referrer-Policy": "strict-origin-when-cross-origin"
+          }
+        </textarea>
     </label>
     <label for="name">
       <span>名字</span>
-      <input style="width: 96%;" type="text" name="name" value="" />
+      <input style="width: 96%;" type="text" name="name" value="SSIS-834完全引退AV女優最後の1日三上悠亜ラストセックス" />
     </label>
     <label for="thread">
       <span>线程选择</span>
@@ -126,6 +126,22 @@
     <button class="upgrade-btn" type="submit">提交</button>
   </form>
 </body>
+<script>
+  const form = document.getElementById('myForm');
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault(); // 阻止默认的表单提交行为
+    const formData = new FormData(form);
+    fetch('/search', {
+      method: 'POST',
+      body: formData
+    }).then(res => {
+      return res.json()
+    }).then(res => {
+      alert('下载完成')
+    })
+  });
+</script>
 
 </html>
 

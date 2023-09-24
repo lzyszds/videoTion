@@ -4,8 +4,9 @@ import swig from "swig";
 import fs from "fs";
 import axios from "axios";
 import { Worker } from "worker_threads";
-// import { merge } from './merge'
+import { merge } from './merge'
 import https from 'https'
+import bodyParser from 'body-parser'
 const getVideo = require("./getVideo");
 
 
@@ -17,11 +18,19 @@ app.engine('html', swig.renderFile);
 //设置渲染引擎为html
 app.set('view engine', 'html');
 app.use(express.urlencoded({ extended: false }))
+// 使用 body-parser 中间件来解析请求体
+app.use(bodyParser.json()); // 解析 JSON 格式的请求体
+app.use(bodyParser.urlencoded({ extended: true })); // 解析 URL 编码的请求体
+
 
 app.get("/", (req, resp) => {
   resp.render('index', { title: '爬取视频' });
 })
 
+app.post("/test", async (req, res) => {
+  console.log(`lzy  req:`, req.body)
+  res.send('请求完成')
+})
 
 /**
  *  url:m3u8地址
@@ -29,13 +38,9 @@ app.get("/", (req, resp) => {
  *  headers:请求头
 */
 app.post("/search", async (req, res) => {
+  if (JSON.stringify(req.body) === '{}') return console.log('找不到参数');
   let { url, thread, headers, name } = req.body;
   name = name.replaceAll(" ", '')
-  try {
-    // await merge(name)
-  } catch {
-    console.log('没有1');
-  }
   headers = JSON.parse(headers)
   let downLoadPlan = 0
   // 将其转换为数字
@@ -50,37 +55,27 @@ app.post("/search", async (req, res) => {
   const dataArr = m3u8Data.split('\n').filter((res: any) => res.indexOf(videoName) === 0)
   const countArr = splitArrayIntoEqualChunks(dataArr, thread)
   getVideo(countArr[0], 0, 0, urlPrefix, headers).then((result: any) => {
-    console.log(`lzy  result:`, result)
-    if (result === '下载完成') {
-      downLoadPlan++
-    }
-    // merge()
+    console.log(`lzy  result,then:`, result)
   }).catch((e: any) => {
-    console.log(`lzy  e:` + downLoadPlan, e)
+    console.log(e, 'catch');
+  }).finally((res: any) => {
     downLoadPlan++
   })
+
   for (let i = 1; i < 20; i++) {
     const seprateThread = new Worker(__dirname + `/seprate/seprateThread${i}.js`);
-    seprateThread.on("message", (result) => {
-      console.log(`lzy  result:`, result)
+    seprateThread.on("message", async () => {
       downLoadPlan++
       if (downLoadPlan >= thread) {
-        console.log('下载完成');
-        // merge()
+        merge(name).then(resultext => {
+          res.send(resultext)
+        })
       }
     });
     seprateThread.postMessage({ urlData: countArr[i], i, headers, urlPrefix });
   }
 })
 
-
-fs.readFile('./text.text', 'utf-8', (err, data) => {
-  // const m3u8 = 'https://ss160.handonet.com/stream/3/AE/4x54iEqAa9faybfYIXxRHVq26qzHS8DXqyp/hls720/4x54iEqAa9faybfYIXxRHVq26qzHS8DXqyp720.m3u8'
-  // const videoName = m3u8.split('/')[m3u8.split('/').length - 1].split('.')[0]
-  // const dataArr = data.split('\n').filter((res) => res.indexOf(videoName) === 0)
-  // console.log(`lzy  dataArr:`, dataArr)
-
-})
 
 
 app.listen(3000, () => {

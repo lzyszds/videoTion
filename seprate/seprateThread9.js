@@ -9,9 +9,13 @@ parentPort.on("message", (limit) => {
   try {
     getVideo(urlData, 0, i, urlPrefix, headers)
       .then(res => {
-        parentPort.postMessage(res)
+        console.log(res);
+      }).catch(e => {
+        console.log(e);
+      }).finally(() => {
+        parentPort.postMessage(i)
       })
   } catch (e) {
-    console.log(e);
+    parentPort.postMessage(e)
   }
 });
