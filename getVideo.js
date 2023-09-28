@@ -45,7 +45,7 @@ function getVideo(urlData, i, index, urlPrefix, headers) {
         }
       });
     } catch (e) {
-      reject('下载完成' + index)
+      reject('下载完成' + index + e)
       // console.log('superagent的问题|下载完成' + index,);
     }
   })

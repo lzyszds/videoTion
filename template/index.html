@@ -3,26 +3,37 @@
 
 <head>
   <meta charset="utf-8">
-  <title>
-    欢迎来到视频爬取网站</title>
+  <title>视频爬取AV</title>
   <style>
+    :root {
+      --themeColor: #8FB3FF;
+      --subColor: #000
+    }
+
     body {
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       margin: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
+      background: #000;
+      color: #fff;
+      backdrop-filter: blur(5px);
+      background-size: 100% !important;
     }
 
     form {
+      color: #000;
       width: 450px;
-      background: linear-gradient(180deg, #DCF9E0 0%, #FFFFFF 30.21%);
-      box-shadow: 0 187px 75px rgba(0, 0, 0, 0.01), 0 105px 63px rgba(0, 0, 0, 0.05), 0 47px 47px rgba(0, 0, 0, 0.09), 0 12px 26px rgba(0, 0, 0, 0.1), 0 0 0 rgba(0, 0, 0, 0.1), inset 0 1px 20px #9b4fff;
       border-radius: 16px;
       display: flex;
       flex-direction: column;
       padding: 40px;
-      border: 6px solid #000;
+      border: 2px solid #000;
+      background-color: #fff;
+      position: relative;
+      padding-bottom: 80px;
     }
 
     label {
@@ -30,16 +41,20 @@
       font-size: 20px;
       display: flex;
       flex-direction: column;
+      margin-top: 10px;
+    }
+
+    label>span {
+      margin-bottom: 10px;
     }
 
     textarea {
       /* 设计一个 */
-      border: 3px solid #9b4fff;
+      border: 2px solid var(--subColor);
       border-radius: 5px;
-      padding: 5px;
-      width: 96%;
+      padding: 5px 10px;
+      width: 100%;
       height: 100px;
-      margin-bottom: 10px;
     }
 
     input {
@@ -50,7 +65,7 @@
       border: 2px solid transparent;
       border-radius: 8px;
       outline: none;
-      border-color: #9b4fff;
+      border-color: var(--subColor);
       color: #0d0c22;
       transition: 0.3s ease;
     }
@@ -68,14 +83,17 @@
     }
 
     .upgrade-btn {
+      position: absolute;
+      bottom: 20px;
+      right: 30px;
       display: flex;
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      margin: 100px auto 0;
-      width: 215px;
+      margin: 50px auto 0;
+      width: 125px;
       height: 40px;
-      background: #0bdd12;
+      background: #fe638f;
       box-shadow: 0 0.5px 0.5px #EFEFEF, 0 1px 0.5px rgba(239, 239, 239, 0.5);
       border-radius: 7px;
       border: 0;
@@ -86,12 +104,87 @@
       transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
       cursor: pointer;
     }
+
+    input:-webkit-autofill::selection {
+      -webkit-text-fill-color: #fff !important;
+    }
+
+    body::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgb(245, 245, 245);
+      background-color: #eee;
+    }
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 8px;
+      background-color: rgb(245, 245, 245);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #d4d4d4 !important;
+      border-radius: 20px;
+      border: 1px solid rgb(245, 245, 245);
+      transition: 1s all;
+    }
+
+    .radioType>div {
+      display: flex;
+      place-content: center;
+      gap: 10px;
+    }
+
+    .radioType input {
+      display: none;
+    }
+
+    .radioType>div>div {
+      flex: 1;
+      height: 100px;
+      line-height: 100px;
+      text-align: center;
+      border-radius: 10px;
+      cursor: pointer;
+      background-color: #ddd;
+      user-select: none;
+    }
+
+    .radioType>div>div.supjav.active {
+      background-color: red;
+      color: #fff;
+    }
+
+    .radioType>div>div.missav.active {
+      background-color: #000;
+      color: #fff;
+    }
+
+    .radioType>div>div.missAv.active span:nth-child(2) {
+      color: #fe638f;
+    }
+
+    span.av {
+      color: #fe638f;
+    }
   </style>
 </head>
 
 <body>
-  <h1>欢迎来到视频爬取网站</h1>
-  <form method="post" action="/search">
+  <h1>欢迎来到视频爬取网站 <span class="av">AV.video</span></h1>
+  <form id="myForm" method="post" action="/search">
+    <label class="radioType" for="urlType">
+      <span>视频类型</span>
+      <input type="radio" name="urlType" id="missav">
+      <input type="radio" name="urlType" id="supjav">
+      <div>
+        <div class="typeItem supjav active">
+          <div>SupJav</div>
+        </div>
+        <div class="typeItem missav">
+          <span>MISS</span>
+          <span>AV</span>
+        </div>
+      </div>
+    </label>
     <label for="url" class="textarea">
       <span>视频接口地址</span>
       <textarea type="text"
@@ -101,14 +194,6 @@
       <span>线程选择</span>
       <textarea type="text" name="headers">
           {
-            "accept": "*/*",
-            "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
-            "sec-ch-ua": "\"Not/A)Brand\";v=\"99\", \"Google Chrome\";v=\"115\", \"Chromium\";v=\"115\"",
-            "sec-ch-ua-mobile": "?0",
-            "sec-ch-ua-platform": "\"Windows\"",
-            "sec-fetch-dest": "empty",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-site": "cross-site",
             "Referer": "https://emturbovid.com/",
             "Referrer-Policy": "strict-origin-when-cross-origin"
           }
@@ -116,7 +201,7 @@
     </label>
     <label for="name">
       <span>名字</span>
-      <input style="width: 96%;" type="text" name="name" value="SSIS-834完全引退AV女優最後の1日三上悠亜ラストセックス" />
+      <input style="width: 100%;" type="text" name="name" value="SSIS-834完全引退AV女優最後の1日三上悠亜ラストセックス" />
     </label>
     <label for="thread">
       <span>线程选择</span>
@@ -127,20 +212,45 @@
   </form>
 </body>
 <script>
-  const form = document.getElementById('myForm');
+  // const form = document.getElementById('myForm');
+  const typeItem = document.querySelectorAll('.typeItem')
 
-  form.addEventListener('submit', function (event) {
-    event.preventDefault(); // 阻止默认的表单提交行为
-    const formData = new FormData(form);
-    fetch('/search', {
-      method: 'POST',
-      body: formData
-    }).then(res => {
-      return res.json()
-    }).then(res => {
-      alert('下载完成')
+  // form.addEventListener('submit', function (event) {
+  //   event.preventDefault(); // 阻止默认的表单提交行为
+  //   const formData = new FormData(form);
+  //   fetch('/search', {
+  //     method: 'POST',
+  //     body: formData
+  //   }).then(res => {
+  //     return res.json()
+  //   }).then(res => {
+  //     alert('下载完成')
+  //   })
+  // });
+  typeItem.forEach((res) => {
+    res.addEventListener('click', function () {
+      typeItem.forEach((res) => {
+        res.classList.remove('active')
+      })
+      this.classList.add('active')
+      const type = res.className.split(' ')[1]
+      console.log(type);
+      const input = document.querySelector(`input#${type}`)
+      input.checked = true
+      const headerItem = document.querySelector('textarea[name="headers"]')
+      if (type === 'supjav') {
+        headerItem.innerHTML = `{
+          "Referer": "https://emturbovid.com/",
+          "Referrer-Policy": "strict-origin-when-cross-origin"
+        }`
+      } else if (type === 'missav') {
+        headerItem.innerHTML = `{
+          "Origin": "https://missav.com",
+          "Referer": "https://missav.com/cn/pppd-985-uncensored-leak"
+        }`
+      }
     })
-  });
+  })
 </script>
 
 </html>

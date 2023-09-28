@@ -38,10 +38,20 @@ app.post("/test", async (req, res) => {
  *  headers:请求头
 */
 app.post("/search", async (req, res) => {
-  if (JSON.stringify(req.body) === '{}') return console.log('找不到参数');
+  if (JSON.stringify(req.body) === '{}') return res.send('请求参数不能为空,找不到请求参数');
   let { url, thread, headers, name } = req.body;
   name = name.replaceAll(" ", '')
   headers = JSON.parse(headers)
+  Object.assign(headers, {
+    "accept": "*/*",
+    "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+    "sec-ch-ua": "\"Not/A)Brand\";v=\"99\", \"Google Chrome\";v=\"115\", \"Chromium\";v=\"115\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "cross-site",
+  })
   let downLoadPlan = 0
   // 将其转换为数字
   // try {
@@ -62,10 +72,10 @@ app.post("/search", async (req, res) => {
     downLoadPlan++
   })
 
-  for (let i = 1; i < 20; i++) {
+  for (let i = 1; i < thread; i++) {
     const seprateThread = new Worker(__dirname + `/seprate/seprateThread${i}.js`);
     seprateThread.on("message", async () => {
-      downLoadPlan++
+      console.log((downLoadPlan++) + "/" + thread);
       if (downLoadPlan >= thread) {
         merge(name).then(resultext => {
           res.send(resultext)
@@ -81,6 +91,9 @@ app.post("/search", async (req, res) => {
 app.listen(3000, () => {
   console.log("http://localhost:3000");
 })
+
+// 映射静态地址
+app.use(express.static('public'));
 
 function splitArrayIntoEqualChunks(array: string[], numberOfChunks: number) {
   const chunkSize = Math.ceil(array.length / numberOfChunks);
