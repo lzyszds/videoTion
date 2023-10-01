@@ -52,7 +52,7 @@ app.post("/search", async (req, res) => {
     "sec-fetch-mode": "cors",
     "sec-fetch-site": "cross-site",
   })
-  let downLoadPlan = 0
+  let downLoadPlan = 0, timer: any = null
   // 将其转换为数字
   // try {
   const videoName = url.split('/')[url.split('/').length - 1].split('.')[0]
@@ -71,13 +71,24 @@ app.post("/search", async (req, res) => {
   }).finally((res: any) => {
     downLoadPlan++
   })
-
   for (let i = 1; i < thread; i++) {
     const seprateThread = new Worker(__dirname + `/seprate/seprateThread${i}.js`);
     seprateThread.on("message", async () => {
       console.log((downLoadPlan++) + "/" + thread);
+      //如果当前卡住在15个线程以后，等待5分钟后，
+      //如果还是没有下载完毕，就合并，不管有没有下载完毕
+      timer && clearTimeout(timer)
+      timer = setTimeout(() => {
+        if (downLoadPlan >= 15) {
+          merge(name).then(resultext => {
+            res.send('合体成功，但是有部分视频没有下载完全')
+          })
+          return
+        }
+      }, 5 * 60 * 1000)
       if (downLoadPlan >= thread) {
         merge(name).then(resultext => {
+          timer && clearTimeout(timer)
           res.send(resultext)
         })
       }

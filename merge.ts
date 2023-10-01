@@ -1,8 +1,13 @@
 import fs from "fs";
 import path from "path";
 import child_process from "child_process";
-// merge('MIDV-234即使处于已经高潮了别动的状态新的-新有菜(桥本有菜)')
+merge('SSIS-509絶頂を超えた更に先三上悠亜')
 export async function merge(name: any) {
+  //检测0.ts文件是否存在如果存在就合并
+  let isExist = fs.existsSync(path.join(__dirname, `./download/0.ts`));
+  if (!isExist) {
+    return '文件不存在'
+  }
   let filenames = "0.ts";
   for (let i = 1; i < 20; i++) {
     filenames += `|${i}.ts`
