@@ -7,6 +7,7 @@ import { Worker } from "worker_threads";
 import { merge } from './merge'
 import https from 'https'
 import bodyParser from 'body-parser'
+
 const getVideo = require("./getVideo");
 
 
@@ -24,7 +25,21 @@ app.use(bodyParser.urlencoded({ extended: true })); // 解析 URL 编码的请�
 
 
 app.get("/", (req, resp) => {
-  resp.render('index', { title: '爬取视频' });
+  const coverList = fs.readdirSync('./public/cover').map((file: any) => {
+    const name = file.split('.')[0]
+    const url = name.replaceAll(" ", '')
+    return {
+      name: name,
+      img: `http://localhost:3000/cover/${file}`,
+      url: `http://localhost:3000/videoDownload/${url}.mp4`
+    }
+  })
+  resp.render('index', {
+    coverlist: coverList
+  });
+})
+app.get('/python', (req, res) => {
+  res.render('python')
 })
 
 app.post("/test", async (req, res) => {
