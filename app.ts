@@ -7,6 +7,7 @@ import { Worker } from "worker_threads";
 import { merge } from './merge'
 import https from 'https'
 import bodyParser from 'body-parser'
+import dayjs from 'dayjs'
 
 const getVideo = require("./getVideo");
 
@@ -25,17 +26,44 @@ app.use(bodyParser.urlencoded({ extended: true })); // 解析 URL 编码的请�
 
 
 app.get("/", (req, resp) => {
+  //将文件名中的空格去掉 ,特殊字符也去掉
+  fs.readdirSync('./public/cover').forEach((file: any) => {
+    const name = file.split('.')[0]
+    //使用正则表达式去掉空格等特殊字符
+    const reg = /[\s\[\]\(\)\{\}\+\*\.\?\！\|\\\/\:\;\~\`\!\@\#\$\%\^\&\=\,\<\>\"\'\·]/g
+    const newName = name.replaceAll(reg, '').replaceAll(' ', '')
+    fs.renameSync(`./public/cover/${file}`, `./public/cover/${newName}.jpg`)
+  })
+
+  //将文件名中的空格去掉 ,特殊字符也去掉
+  fs.readdirSync('./public/videoDownload').forEach((file: any) => {
+    const name = file.split('.')[0]
+    //使用正则表达式去掉空格等特殊字符
+    const reg = /[\s\[\]\(\)\{\}\+\*\.\?\！\|\\\/\:\;\~\`\!\@\#\$\%\^\&\=\,\<\>\"\'\·]/g
+    const newName = name.replaceAll(reg, '').replaceAll(' ', '')
+    fs.renameSync(`./public/videoDownload/${file}`, `./public/videoDownload/${newName}.mp4`)
+  })
+
+
   const coverList = fs.readdirSync('./public/cover').map((file: any) => {
     const name = file.split('.')[0]
     const url = name.replaceAll(" ", '')
+    const stat = fs.statSync('./public/videoDownload/' + file.replace('.jpg', '.mp4'))
+    let datails: { time: string, size: string } = {
+      time: dayjs(stat.birthtimeMs).format("YYYY-MM-DD HH:mm"),
+      size: formatFileSize(stat.size),
+    }
     return {
+      stampTime: stat.birthtimeMs,
       name: name,
       img: `http://localhost:3000/cover/${file}`,
-      url: `http://localhost:3000/videoDownload/${url}.mp4`
+      url: `http://localhost:3000/videoDownload/${url}.mp4`,
+      datails
     }
   })
+
   resp.render('index', {
-    coverlist: coverList
+    coverlist: quickSortByTimestamp(coverList, 'stampTime', false)
   });
 })
 app.get('/python', (req, res) => {
@@ -55,7 +83,19 @@ app.post("/test", async (req, res) => {
 app.post("/search", async (req, res) => {
   if (JSON.stringify(req.body) === '{}') return res.send('请求参数不能为空,找不到请求参数');
   let { url, thread, headers, name } = req.body;
-  name = name.replaceAll(" ", '')
+  // <img src="https://img.supjav.com/images/2022/08/ssis498pl.jpg" class="img" alt="[无码破解]SSIS-498">
+  //匹配双引号里面的内容
+  const regex = /"(.*?)"/g;
+  const matches = name.match(regex);
+  let contents = null
+  if (matches && matches.length > 0) {
+    contents = matches.map((match: any) => match.replace(/"/g, ''));
+    console.log(contents);
+  } else {
+    console.log("未找到双引号内容");
+  }
+  const coverImgUrl = contents[0]
+  name = contents[2].replaceAll(" ", '').replaceAll("[无码破解]", '')
   headers = JSON.parse(headers)
   Object.assign(headers, {
     "accept": "*/*",
@@ -86,6 +126,7 @@ app.post("/search", async (req, res) => {
   }).finally((res: any) => {
     downLoadPlan++
   })
+  getCoverImg(coverImgUrl, name)
   for (let i = 1; i < thread; i++) {
     const seprateThread = new Worker(__dirname + `/seprate/seprateThread${i}.js`);
     seprateThread.on("message", async () => {
@@ -100,7 +141,7 @@ app.post("/search", async (req, res) => {
           })
           return
         }
-      }, 5 * 60 * 1000)
+      }, 2 * 60 * 1000)
       if (downLoadPlan >= thread) {
         merge(name).then(resultext => {
           timer && clearTimeout(timer)
@@ -111,6 +152,7 @@ app.post("/search", async (req, res) => {
     seprateThread.postMessage({ urlData: countArr[i], i, headers, urlPrefix });
   }
 })
+
 
 
 
@@ -132,95 +174,62 @@ function splitArrayIntoEqualChunks(array: string[], numberOfChunks: number) {
   return result;
 }
 
+function getCoverImg(coverImgUrl: string, name: string) {
+  https.get(coverImgUrl, (response) => {
+    const localPath = './public/cover/' + name + '.jpg'
+    const fileStream = fs.createWriteStream(localPath);
+    response.pipe(fileStream);
+    fileStream.on('finish', () => {
+      fileStream.close();
+      console.log('图片下载完成');
+    });
+  }).on('error', (error) => {
+    console.error('下载出错:', error);
+  });
+}
 
+export function formatFileSize(fileSize: any) {
 
+  const units = [
+    'B',
+    'KB',
+    'MB',
+    'GB',
+    'TB'
+  ];
+  let index = 0;
 
+  while (fileSize >= 1024 && index < units.length - 1) {
+    fileSize /= 1024;
+    index++;
+  }
 
-// // 封装递归方法
-// const getVideo = async (url: string, i: number) => {
-//   // 爬取数据
-//   const resa = await superagent.get(url + `${i}.ts`)
-//     .set({
-//       "Origin": 'https://missav.com',
-//       "Referer": 'https://missav.com/cn/pppd-985-uncensored-leak',
-//       "Sec-Ch-Ua": '"Not/A)Brand";v="99", "Microsoft Edge";v="115", "Chromium";v="115"',
-//       "Sec-Fetch-Mode": 'cors',
-//       "Sec-Fetch-Site": 'cross-site',
-//       "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.165',
-//     })
-//   console.log(`正在爬取第${i}个视频`);
+  return fileSize.toFixed(2) + units[index];
+}
 
-//   //将视频流生成二进制数据
-//   const buffer = Buffer.from(resa.body);
-//   if (i === 0) {
-//     //如果是第一个视频，就创建文件
-//     fs.writeFile('video.ts', buffer, (err) => {
-//       if (err) {
-//         console.log(err);
-//         throw err;
-//       }
-//       console.log("第一个视频写入成功");
-//       if (i < 100) {
-//         getVideo(url, ++i);
-//       }
-//     })
-//   } else {
-//     //如果不是第一个视频，就追加写入
-//     fs.appendFile('video.ts', buffer, (err) => {
-//       if (err) {
-//         console.log(err);
-//         throw err;
-//       }
-//       console.log(`第${i}个视频写入成功`);
-//       if (i < 100) {
-//         getVideo(url, ++i);
-//       }
-//     })
-//   }
-//   // if (i < 100) {
-//   //   getVideo(url, ++i);
-//   // }
-// }
+//排序
+function quickSortByTimestamp(arr: any, key: string, isIncremental: boolean = true): any {
+  if (arr.length <= 1) {
+    return arr;
+  }
 
-// const url = 'https://cdn152.akamai-content-network.com/bcdn_token=QoM4P7qAfiEYmCQVfbz7wwFLdaad6FmTR00aEQzslf4&expires=1689092860&token_path=%2F1811c2dc-541d-43e9-a941-5c0fa8400fa9%2F/1811c2dc-541d-43e9-a941-5c0fa8400fa9/842x480/video'
-// getVideo(url, 0);
-// superagent.get(url + `${i}.ts`)
-//   .set({
-//     "Origin": 'https://missav.com',
-//     "Referer": 'https://missav.com/cn/pppd-985-uncensored-leak',
-//     "Sec-Ch-Ua": '"Not/A)Brand";v="99", "Microsoft Edge";v="115", "Chromium";v="115"',
-//     "Sec-Fetch-Mode": 'cors',
-//     "Sec-Fetch-Site": 'cross-site',
-//     "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.165',
-//   })
-//   .end((err, res) => {
-//     console.log(`正在爬取第${i}个视频`);
+  const pivot = arr[Math.floor(arr.length / 2)];
+  const less = [];
+  const equal = [];
+  const greater = [];
 
-//     if (err) {
-//       console.log(err);
-//       throw err;
-//     }
-//     //将视频流生成二进制数据
-//     const buffer = Buffer.from(res.body);
-//     if (i === 0) {
-//       //如果是第一个视频，就创建文件
-//       fs.writeFile('video.ts', buffer, (err) => {
-//         if (err) {
-//           console.log(err);
-//           throw err;
-//         }
-//         console.log("第一个视频写入成功");
-//       })
-//     } else {
-//       //如果不是第一个视频，就追加写入
-//       fs.appendFile('video.ts', buffer, (err) => {
-//         if (err) {
-//           console.log(err);
-//           throw err;
-//         }
-//         console.log(`第${i}个视频写入成功`);
-//       })
-//     }
-//     i++;
-//     resp.send("爬取成功")
-//   })
+  for (const element of arr) {
+    if (element[key] < pivot[key]) {
+      less.push(element);
+    } else if (element[key] > pivot[key]) {
+      greater.push(element);
+    } else {
+      equal.push(element);
+    }
+  }
+  if (isIncremental) {
+    return [...quickSortByTimestamp(less, key, isIncremental), ...equal, ...quickSortByTimestamp(greater, key, isIncremental)];
+  } else {
+    return [...quickSortByTimestamp(greater, key, isIncremental), ...equal, ...quickSortByTimestamp(less, key, isIncremental)];
+  }
+}

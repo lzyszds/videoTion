@@ -6,182 +6,136 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <link rel="stylesheet" href="style.css">
-  <style>
-    main {
-      padding: 10px 100px;
-    }
-
-    a.toHref {
-      display: block;
-      margin: 0 auto;
-      width: 60px;
-      font-size: 14px;
-      height: 30px;
-      text-align: center;
-      line-height: 30px;
-      background-color: #000;
-      color: #fff;
-      text-decoration: none;
-      position: fixed;
-      left: 0;
-      bottom: 0;
-    }
-
-    .playInterface {
-      height: 76vh;
-      width: 100%;
-      background-color: black;
-      margin: 0 auto;
-      border-radius: 10px;
-      display: flex;
-    }
-
-    video {
-      height: 100%;
-      margin: 0 auto;
-      border-radius: 10px;
-    }
-
-    .coverList {
-      margin-top: 2px;
-    }
-
-    ul {
-      user-select: none;
-      display: flex;
-      gap: 10px;
-      overflow: hidden;
-      overflow-x: scroll;
-      border-radius: 10px;
-    }
-
-    li {
-      width: 200px;
-      height: 135px;
-      flex-shrink: 0;
-      /* 设置为 0，禁止收缩 */
-      cursor: pointer;
-      border: 4px solid transparent;
-      border-radius: 10px;
-    }
-
-    li.acitve {
-      border: 4px solid #000;
-    }
-
-    li img {
-      width: 200px;
-      height: 134px;
-      border-radius: 10px;
-      object-fit: cover;
-    }
-
-    li h4 {
-      height: 135px;
-      font-size: 14px;
-      color: #fff;
-      margin-top: 0;
-      background-color: #000;
-      padding: 10px;
-      text-align: center;
-      border-radius: 10px;
-      transform: translateY(0);
-      transition: .3s transform ease-in-out;
-      user-select: text;
-    }
-
-    li h4.hover {
-      transform: translateY(-138px);
-    }
-
-    .scroll {
-      position: fixed;
-      bottom: 40px;
-      transform: translateY(-40px);
-      z-index: 999;
-      border: none;
-      background-color: transparent;
-      cursor: pointer;
-    }
-
-
-    .toleft {
-      left: 0;
-    }
-
-    .toright {
-      right: 0;
-    }
-
-    button img {
-      width: 60px;
-      height: 60px;
-    }
-  </style>
+  <link rel="stylesheet" href="layui/css/layui.css">
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="plyr.css">
+  <link rel="stylesheet" href="normalize.min.css">
 </head>
 
-<body>
+<body class="theme drak"> <!-- white -->
   <main>
-    <a class="toHref" href="/python">去爬取</a>
     <section class="playInterface">
-      <video controls></video>
+      <div class="toHref">
+        <button><a href="/python">添加</a></button>
+        <button onclick="handleMode()">切换模式</button>
+        <button class="layui-btn popList">目录列表</button>
+        <!-- <button onclick="handleMode()">切换模式</button> -->
+        <form class="layui-form" action="">
+          <div class="layui-input-block">
+            <select name="interest" lay-filter="college" lay-verify="required">
+              <option value="0">递增</option>
+              <option value="1" selected="">递减</option>
+            </select>
+          </div>
+        </form>
+
+      </div>
+      <video style="display: none;" controls crossorigin playsinline poster="">
+        <source type="video/mp4">
+      </video>
     </section>
     <section class="coverList">
+      <div class="toSearch">
+        <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="搜索" class="layui-input">
+        <button id="search">搜索</button>
+        <button>关闭</button>
+      </div>
       <ul>
         {% for item in coverlist %}
-        <li>
+        <li data-time="{{item.stampTime}}">
+          <span class="index">{{loop.index}}</span>
+          <p>
+            <span>{{item.datails.time}}</span>
+            <span>{{item.datails.size}}</span>
+          </p>
           <img src="{{item.img}}" data-url="{{item.url}}" alt="">
           <h4>{{item.name}}</h4>
         </li>
         {% endfor %}
       </ul>
     </section>
-    <button class="scroll toleft"><img src="/left.png" alt=""></button>
-    <button class="scroll toright"><img src="/right.png" alt=""></button>
+    <!-- <button class="scroll toleft"><img src="/left.png" alt=""></button>
+    <button class="scroll toright"><img src="/right.png" alt=""></button> -->
   </main>
 
 </body>
+<script src="jquery.min.js"></script>
+<script src="plyr.min.js"></script>
+<script src="polyfill.min.js"></script>
+<script src="layui/layui.js"></script>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const video = document.querySelector('video')
-    const ul = document.querySelector('.coverList ul')
-    const coverListItems = document.querySelectorAll('.coverList li')
-    const coverListItemsH4 = document.querySelectorAll('.coverList li h4')
-    const coverListItemsImg = document.querySelectorAll('.coverList li img')
-    const scroll = document.querySelectorAll('.scroll')
-    coverListItems.forEach((item, index) => {
-      item.addEventListener('mouseenter', () => {
-        coverListItemsH4[index].classList.add('hover')
-      })
-      item.addEventListener('mouseleave', () => {
-        coverListItemsH4[index].classList.remove('hover')
-      })
-      item.addEventListener('click', () => {
-        video.src = coverListItemsImg[index].dataset.url
-        coverListItems.forEach((item) => {
-          item.classList.remove('acitve')
+
+  function handleMode() {
+    if ($('body.theme').hasClass('drak')) {
+      $('body.theme').addClass('white').removeClass('drak')
+    } else {
+      $('body.theme').addClass('drak').removeClass('white')
+    }
+  }
+  $(document).ready(function () {
+    const player = new Plyr('video');
+    // Expose player so it can be used from the console
+    $('.coverList li').each((index, item) => {
+      $(item).on('click', () => {
+        const url = $(item).find('img').data('url')
+        $('video').attr('poster', $(item).find('img').attr('src'))
+        $('.coverList li').each((index, item) => {
+          $(item).removeClass('acitve')
         })
-        item.classList.add('acitve')
-      })
-    })
-    scroll.forEach((item) => {
-      item.addEventListener('click', () => {
-        ul.scrollBy({
-          left: item.classList.contains('toleft') ? -425 : 425,
-          behavior: 'smooth'
-        })
+        $(item).addClass('acitve')
+        // 更新 Plyr 实例的源 URL
+        // 更新 <source> 元素的 src 属性
+        const sourceElement = player.elements.wrapper.querySelector('source');
+        sourceElement.src = url;
+        // 更新 Plyr 实例的源
+        player.source = {
+          type: 'video',
+          sources: [
+            {
+              src: url,
+              type: 'video/mp4',
+            },
+          ],
+        };
+        player.poster = $(item).find('img').attr('src')
       })
     })
 
-    // 添加滚轮事件监听器
-    ul.addEventListener("wheel", function (event) {
-      // event.deltaY 包含滚轮滚动的距离，正数表示向下滚动，负数表示向上滚动
-      ul.scrollBy({
-        left: event.deltaY < 0 ? -850 : 850,
-        behavior: 'smooth'
-      })
-    });
+    $('video source').attr('src', $('.coverList li').eq(0).find('img').data('url'))
+    setTimeout(() => {
+      $("video").show()
+    }, 500)
+
+
+    // document.addEventListener('keydown', function (event) {
+    //   // 检查是否按下了空格键 (keyCode 32)
+    //   if (event.keyCode === 32) {
+    //     event.preventDefault(); // 阻止默认行为
+    //     if (video.paused) {
+    //       video.play();
+    //     } else {
+    //       video.pause();
+    //     }
+    //   } else if (event.keyCode === 37) {
+    //     event.preventDefault(); // 阻止默认行为
+    //     // 检查是否按下了左键 (keyCode 37) 回退10秒
+    //     video.currentTime -= 10;
+    //   } else if (event.keyCode === 39) {
+    //     event.preventDefault(); // 阻止默认行为
+    //     // 检查是否按下了右键 (keyCode 39) 前进10秒
+    //     video.currentTime += 10;
+    //   } else if (event.keyCode === 38) {
+    //     event.preventDefault(); // 阻止默认行为
+    //     // 检查是否按下了上键 (keyCode 38) 音量+10
+    //     video.volume = (video.volume + 0.1 > 1) ? 1 : video.volume + 0.1;
+    //   } else if (event.keyCode === 40) {
+    //     event.preventDefault(); // 阻止默认行为
+    //     // 检查是否按下了下键 (keyCode 40) 音量-10
+    //     video.volume = (video.volume - 0.1 < 0) ? 0 : video.volume - 0.1;
+    //   }
+    // });
   })
 </script>
+<script src="js/index.js"></script>
 
 </html>

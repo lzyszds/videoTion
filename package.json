@@ -8,7 +8,8 @@
     "start": "nodemon ./app.ts",
     "mp4": "ts-node merge.ts",
     "create": "ts-node createSeprate.ts",
-    "imgToVideo": "ts-node imgToVideo.ts"
+    "imgToVideo": "ts-node imgToVideo.ts",
+    "build": "tsc"
   },
   "author": "",
   "license": "ISC",
@@ -23,9 +24,11 @@
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "child_process": "^1.0.2",
+    "dayjs": "^1.11.10",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "fluent-ffmpeg": "^2.1.2",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.1",
     "progress": "^2.0.3",
     "request": "^2.88.2",
@@ -33,5 +36,8 @@
     "swig": "^1.4.2",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
+  },
+  "devDependencies": {
+    "@types/node-fetch": "^2.6.7"
   }
 }
