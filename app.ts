@@ -9,6 +9,7 @@ import https from 'https'
 import bodyParser from 'body-parser'
 import dayjs from 'dayjs'
 
+
 const getVideo = require("./getVideo");
 
 
@@ -83,19 +84,11 @@ app.post("/test", async (req, res) => {
 app.post("/search", async (req, res) => {
   if (JSON.stringify(req.body) === '{}') return res.send('请求参数不能为空,找不到请求参数');
   let { url, thread, headers, name } = req.body;
-  // <img src="https://img.supjav.com/images/2022/08/ssis498pl.jpg" class="img" alt="[无码破解]SSIS-498">
-  //匹配双引号里面的内容
-  const regex = /"(.*?)"/g;
-  const matches = name.match(regex);
-  let contents = null
-  if (matches && matches.length > 0) {
-    contents = matches.map((match: any) => match.replace(/"/g, ''));
-    console.log(contents);
-  } else {
-    console.log("未找到双引号内容");
-  }
-  const coverImgUrl = contents[0]
-  name = contents[2].replaceAll(" ", '').replaceAll("[无码破解]", '')
+  name = name.replace('[无码破解]', '')
+  //截取番号出来
+  const id = getIdNumber(name)
+  //替换名字非法字符 保留日语和中文字符，并删除其他非字母数字字符
+  name = name.replace(/[^\u4E00-\u9FA5\u3040-\u309F\u30A0-\u30FF\uFF65-\uFF9Fa-zA-Z0-9]/g, '')
   headers = JSON.parse(headers)
   Object.assign(headers, {
     "accept": "*/*",
@@ -117,8 +110,10 @@ app.post("/search", async (req, res) => {
       rejectUnauthorized: false  // 禁用 SSL 证书验证
     })
   }) as any
+
   const dataArr = m3u8Data.split('\n').filter((res: any) => res.indexOf(videoName) === 0)
   const countArr = splitArrayIntoEqualChunks(dataArr, thread)
+
   getVideo(countArr[0], 0, 0, urlPrefix, headers).then((result: any) => {
     console.log(`lzy  result,then:`, result)
   }).catch((e: any) => {
@@ -126,7 +121,9 @@ app.post("/search", async (req, res) => {
   }).finally((res: any) => {
     downLoadPlan++
   })
-  getCoverImg(coverImgUrl, name)
+
+  getCoverImg(id, name)//获取封面图片
+
   for (let i = 1; i < thread; i++) {
     const seprateThread = new Worker(__dirname + `/seprate/seprateThread${i}.js`);
     seprateThread.on("message", async () => {
@@ -174,8 +171,15 @@ function splitArrayIntoEqualChunks(array: string[], numberOfChunks: number) {
   return result;
 }
 
-function getCoverImg(coverImgUrl: string, name: string) {
-  https.get(coverImgUrl, (response) => {
+function getIdNumber(val: string) {
+  const index = val.indexOf(' ')
+  return val.slice(0, index)
+}
+
+function getCoverImg(id: string, name: string) {
+  /* 获取图片，图片来自missav.com中，因为这个网站没做拦截 */
+  const url = `https://cdn82.akamai-content-network.com/${id}/cover.jpg?class=normal`
+  https.get(url, (response) => {
     const localPath = './public/cover/' + name + '.jpg'
     const fileStream = fs.createWriteStream(localPath);
     response.pipe(fileStream);
@@ -187,7 +191,16 @@ function getCoverImg(coverImgUrl: string, name: string) {
     console.error('下载出错:', error);
   });
 }
-
+//删除遗存的1.ts 2.ts这些未合成的视频文件
+function removeTsVideo() {
+  for (let i = 0; i < 20; i++) {
+    const filePath = `./public/videoDownload/${i}.ts`
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) return;
+      fs.unlinkSync(filePath)
+    })
+  }
+}
 export function formatFileSize(fileSize: any) {
 
   const units = [

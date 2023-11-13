@@ -78,6 +78,10 @@ a:hover {
   font-size: 13px;
 }
 
+.toHref button{
+  width: 80px;
+}
+
 .drak .toSearch button,
 .drak .toHref button {
   background-color: var(--dark);
