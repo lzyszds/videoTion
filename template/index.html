@@ -5,9 +5,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="layui/css/layui.css">
-  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="css/index.css">
   <link rel="stylesheet" href="plyr.css">
   <link rel="stylesheet" href="normalize.min.css">
 </head>
@@ -41,14 +41,15 @@
         <button>关闭</button>
       </div>
       <ul>
-        {% for item in coverlist %}
+        {% for item in coverList %}
         <li data-time="{{item.stampTime}}">
           <span class="index">{{loop.index}}</span>
           <p>
             <span>{{item.datails.time}}</span>
             <span>{{item.datails.size}}</span>
           </p>
-          <img src="{{item.img}}" data-url="{{item.url}}" alt="">
+          <img src="{{item.img}}" data-url="{{item.url}}" data-cover="{{item.cover}}" onerror="this.src='{{item.img}}'"
+            alt="">
           <h4>{{item.name}}</h4>
         </li>
         {% endfor %}
@@ -72,6 +73,20 @@
       $('body.theme').addClass('drak').removeClass('white')
     }
   }
+  // 防抖
+  function debounce(fn, timer) {
+    var debItem = null
+    return function () {
+      var arg = arguments[0]   //获取事件
+      if (debItem) {
+        clearTimeout(debItem)
+      }
+      debItem = setTimeout(() => {
+        fn(arg)              //事件传入函数
+      }, timer)
+    }
+  }
+
   $(document).ready(function () {
     const player = new Plyr('video');
     // Expose player so it can be used from the console
@@ -105,6 +120,25 @@
     setTimeout(() => {
       $("video").show()
     }, 500)
+    //鼠标划入选择封面事件
+    $('ul').find('li').each((i, res) => {
+
+      $(res).on('mouseenter', debounce(function (event) {
+
+        const img = $(res).find('img')
+        const cover = img.data('cover')
+        if (cover) {
+          $(res).find('img').attr('src', cover)
+        }
+        return
+      }, 50))
+      $(res).on('mouseleave', debounce(function (event) {
+
+        const img = $(res).find('img')
+        const cover = img.data('cover')
+        $(res).find('img').attr('src', cover.replace('png', 'jpg'))
+      }, 10))
+    })
 
 
     // document.addEventListener('keydown', function (event) {

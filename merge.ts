@@ -12,13 +12,13 @@ export async function merge(name: any) {
   for (let i = 1; i < 20; i++) {
     filenames += `|${i}.ts`
   }
-
-  name = name || 'PRED-356美丽的奶嘴生产中出精液里面看著相机楪可怜'
-  const cmd = `cd ./public/videoDownload && ffmpeg -i "concat:${filenames}" -c copy -bsf:a aac_adtstoasc -movflags +faststart ${name || new Date().getTime().toString()}.mp4`
-  child_process.exec(cmd, {
+  const max = {
     // 一次性最大缓存 不限制
     maxBuffer: 1024 * 1024 * 1024,
-  }, (err, stdout, stderr) => {
+  }
+  name = name || 'PRED-356美丽的奶嘴生产中出精液里面看著相机楪可怜'
+  const cmd = `cd ./public/videoDownload && ffmpeg -i "concat:${filenames}" -c copy -bsf:a aac_adtstoasc -movflags +faststart ${name || new Date().getTime().toString()}.mp4`
+  child_process.exec(cmd, max, (err, stdout, stderr) => {
     if (err) {
       console.log(err);
       return;

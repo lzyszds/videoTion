@@ -4,6 +4,8 @@
 <head>
   <meta charset="utf-8">
   <title>视频爬取AV</title>
+  <link rel="stylesheet" href="layui/css/layui.css">
+
   <style>
     :root {
       --themeColor: #8FB3FF;
@@ -17,10 +19,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      place-content: center;
       background: #000;
       color: #fff;
       backdrop-filter: blur(5px);
       background-size: 100% !important;
+      font-size: 16px;
     }
 
     form {
@@ -55,6 +59,7 @@
       padding: 5px 10px;
       width: 100%;
       height: 100px;
+      font-size: 12px;
     }
 
     input {
@@ -68,6 +73,7 @@
       border-color: var(--subColor);
       color: #0d0c22;
       transition: 0.3s ease;
+      font-size: 12px;
     }
 
     .input::placeholder {
@@ -197,16 +203,25 @@
     <label for="headers">
       <span>线程选择</span>
       <textarea type="text" name="headers">
-          {
-            "Referer": "https://emturbovid.com/",
-            "Referrer-Policy": "strict-origin-when-cross-origin"
-          }
-        </textarea>
+{
+  "Referer": "https://emturbovid.com/",
+  "Referrer-Policy": "strict-origin-when-cross-origin"
+}
+</textarea>
     </label>
     <label for="name">
       <span>名字<span style="font-size: 13px;">(番号后面如果没有空格的话,请在番号后面加一个空格)</span></span>
       <input style="width: 100%;" type="text" name="name"
         value="[无码破解]IPZZ-132 chu！chu！chu！ 「桃ちゃん」と刺激的な初お泊りデートで超浓密エッチ朝・昼・夜性が止まらない！！ 桃乃木かな" />
+    </label>
+    <label for="cover">
+      <span style="margin: 0;">内容封面
+        <span class="tips" lay-on="test-tips-color" style="cursor: pointer;">
+          <i class="layui-icon layui-icon-question"></i>
+        </span>
+      </span>
+      <input style="width: 100%;" type="text" name="cover"
+        value='url("https://ver1.sptvp.com/poster/2/A2/HWQmVy1jJg0NsOiG8kM0-55.png")' />
     </label>
     <label for="thread">
       <span>线程选择</span>
@@ -217,46 +232,92 @@
     <button class="upgrade-btn" type="submit">提交</button>
   </form>
 </body>
-<script>
-  // const form = document.getElementById('myForm');
-  const typeItem = document.querySelectorAll('.typeItem')
+<script src="jquery.min.js"></script>
+<script src="layui/layui.js"></script>
 
-  // form.addEventListener('submit', function (event) {
-  //   event.preventDefault(); // 阻止默认的表单提交行为
-  //   const formData = new FormData(form);
-  //   fetch('/search', {
-  //     method: 'POST',
-  //     body: formData
-  //   }).then(res => {
-  //     return res.json()
-  //   }).then(res => {
-  //     alert('下载完成')
-  //   })
-  // });
-  typeItem.forEach((res) => {
-    res.addEventListener('click', function () {
-      typeItem.forEach((res) => {
-        res.classList.remove('active')
+<script>
+  layui.use(function () {
+
+    var layer = layui.layer;
+    var util = layui.util;
+    // 获取表单元素
+    var form = document.getElementById('myForm');
+
+    // 监听表单提交事件
+    form.addEventListener('submit', function (event) {
+      // 阻止默认的表单提交行为
+      event.preventDefault();
+      // 获取表单数据
+      var formData = new FormData(form);
+      let data = {}
+      for (const item of formData.entries()) {
+        data = { ...data, [item[0]]: item[1] }
+      }
+      let loadIndex
+      $.ajax({
+        url: '/search',
+        method: 'post',
+        data: data,
+        beforeSend: function () {
+          loadIndex = layer.load(0, {
+            shade: .6,
+            fixed: true,
+            content: '正在下载中...',
+          });
+        },
+        success: function (result) {
+          // 显示等待组件
+          layer.msg('下载完成')
+          layer.close(loadIndex);
+        },
+        error: function (err) {
+          console.log(err);
+          layer.close(loadIndex);
+        }
       })
-      this.classList.add('active')
-      const type = res.className.split(' ')[1]
-      console.log(type);
-      const input = document.querySelector(`input#${type}`)
-      input.checked = true
-      const headerItem = document.querySelector('textarea[name="headers"]')
-      if (type === 'supjav') {
-        headerItem.innerHTML = `{
+
+    })
+    const typeItem = document.querySelectorAll('.typeItem')
+
+    typeItem.forEach((res) => {
+      res.addEventListener('click', function () {
+        typeItem.forEach((res) => {
+          res.classList.remove('active')
+        })
+        this.classList.add('active')
+        const type = res.className.split(' ')[1]
+        console.log(type);
+        const input = document.querySelector(`input#${type}`)
+        input.checked = true
+        const headerItem = document.querySelector('textarea[name="headers"]')
+        if (type === 'supjav') {
+          headerItem.innerHTML = `{
           "Referer": "https://emturbovid.com/",
           "Referrer-Policy": "strict-origin-when-cross-origin"
         }`
-      } else if (type === 'missav') {
-        headerItem.innerHTML = `{
+        } else if (type === 'missav') {
+          headerItem.innerHTML = `{
           "Origin": "https://missav.com",
           "Referer": "https://missav.com/cn/pppd-985-uncensored-leak"
         }`
-      }
+        }
+      })
     })
-  })
+
+    // 事件
+    util.on('lay-on', {
+      'test-tips-color': function () {
+        layer.tips('(在页面F12中运行) $("#myElement").find(".jw-preview.jw-reset").css("background-image")', this, {
+          tips: [1, '#FE638F'],
+          tipsMore: true
+        });
+        layer.tips('获得路径url("https://ver1.sptvp.com/poster....png")', this, {
+          tips: [3, '#FE638F'],
+          tipsMore: true
+        })
+      },
+    })
+  });
 </script>
 
 </html>
