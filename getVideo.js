@@ -6,21 +6,22 @@ const ProgressBar = require("progress");
 /* 
   url:视频地址
   i:视频的索引
-  max:视频的总数
   index:当前线程的索引
   flag:是否显示进度条
 */
 function getVideo(urlData, i, index, urlPrefix, headers) {
   return new Promise(async (resolve, reject) => {
+
     let resa
     try {
       resa = await superagent.get(urlPrefix + urlData[i]).set(headers);
-      // console.log(`正在爬取第${i}个视频`);
-      var bar = new ProgressBar("  downloading [:bar]  :percent :etas", {
-        complete: "=",
+      // var len = parseInt(resa.headers['content-length'], 10)
+      // console.log(`正在爬取第${i}个视频`); //:etas 速度
+      var bar = new ProgressBar(`🚅🚅🚅下载中|:bar| :percent :current/:total :elapsed  \n`, {
+        complete: "»",
         incomplete: " ",
         width: 20,
-        total: urlData.length - 0
+        total: parseInt(urlData.length)
       });
       bar.tick(i);
       // 获取文件夹的存储大小
@@ -50,5 +51,4 @@ function getVideo(urlData, i, index, urlPrefix, headers) {
     }
   })
 }
-
 module.exports = getVideo;

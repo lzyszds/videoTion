@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>视频爬取AV</title>
+  <link rel="icon" href="logo.jpg" type="image/x-icon">
   <link rel="stylesheet" href="layui/css/layui.css">
 
   <style>
@@ -58,7 +59,7 @@
       border-radius: 5px;
       padding: 5px 10px;
       width: 100%;
-      height: 100px;
+      height: 60px;
       font-size: 12px;
     }
 
@@ -88,14 +89,15 @@
       box-shadow: 0 0 0 4px rgb(234 76 137 / 10%);
     }
 
-    a.upgrade-btn {
-      right: 170px;
-    }
-
-    .upgrade-btn {
+    .formtool {
       position: absolute;
       bottom: 20px;
       right: 30px;
+      display: flex;
+      gap: 20px;
+    }
+
+    .upgrade-btn {
       display: flex;
       flex-direction: row;
       justify-content: center;
@@ -113,6 +115,11 @@
       font-weight: 600;
       transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
       cursor: pointer;
+    }
+
+    div.formtool :where(.upgrade-btn:active, .upgrade-btn:hover) {
+      color: #fff;
+      background-color: rgb(255, 0, 72)
     }
 
     input:-webkit-autofill::selection {
@@ -175,6 +182,59 @@
     span.av {
       color: #fe638f;
     }
+
+    .layui-layer-content {
+      /* color: #000; */
+    }
+
+    .layui-timeline-content {
+      color: #000;
+      background: #00000020;
+      border-radius: 12px;
+      padding: 10px 10px 10px 20px
+    }
+
+    .layui-timeline-content p {
+      width: 620px;
+      word-wrap: break-word
+    }
+
+    .layui-timeline-content p.name {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .layui-timeline-item:before {
+      display: none !important;
+    }
+
+    .copy,
+    .delete {
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    .copy:hover,
+    .delete:hover {
+      background: #fe638f;
+      color: #fff;
+    }
+
+    .layui-timeline-title {
+      display: flex;
+      place-items: center;
+      place-content: space-between;
+    }
+
+    .layui-timeline-title h3 {
+      user-select: none;
+      background: #fe638f;
+      color: #fff;
+      border-radius: 5px;
+      padding: 1px 25px;
+      line-height: 25px;
+    }
   </style>
 </head>
 
@@ -200,7 +260,7 @@
       <textarea type="text"
         name="url">https://ss331.techwodo.com/stream/8/DF/YanJ4R5j41wLnqvgXXIZHpAskdLAUNF75M0/hls1080/YanJ4R5j41wLnqvgXXIZHpAskdLAUNF75M01080.m3u8</textarea>
     </label>
-    <label for="headers">
+    <label for="headers" style="display: none;">
       <span>线程选择</span>
       <textarea type="text" name="headers">
 {
@@ -227,15 +287,47 @@
       <span>线程选择</span>
       <input style="width: 100%;" type="number" name="thread" value="20" max="20" min="1" />
     </label>
-
-    <a href="/" class="upgrade-btn">返回主页</a>
-    <button class="upgrade-btn" type="submit">提交</button>
+    <div class="formtool">
+      <button class="upgrade-btn" type="button" lay-on="lookHistory">查看历史</button>
+      <a href="/" class="upgrade-btn">返回主页</a>
+      <button class="upgrade-btn" type="submit">提交</button>
+    </div>
   </form>
+  <div id="designations" data-designations="{{designations}}"></div>
 </body>
 <script src="jquery.min.js"></script>
 <script src="layui/layui.js"></script>
+<script type="text/html" id="modulesitem">
+  <div class="layui-timeline-item">
+    <div class="layui-timeline-content layui-text">
+      <div class="layui-timeline-title">
+        <h3>过去</h3>
+        <div>
+          <i class="layui-icon layui-icon-transfer copy"></i>
+          <i class="layui-icon layui-icon-delete delete"></i>
+        </div>
+      </div> 
+      <p class="name"></p>
+      <p class="cover"></p>
+      <p class="url"></p>
+    </div>
+  </div>
+</script>
 
 <script>
+  //获取库内所有番号
+  const designations = $('#designations').data('designations').split(',')
+  $('#designations').remove()
+  let data = localStorage.getItem('Download_History')
+  if (data) {
+    data = JSON.parse(data)
+    $('input[name="name"]').val(data[0].name)
+    $('input[name="cover"]').val(data[0].cover)
+    $('input[name="thread"]').val(data[0].thread)
+    $('textarea[name="url"]').text(data[0].url)
+  }
+  //避免重复下载，提交两次请求申请
+  let isDownloading = false
   layui.use(function () {
 
     var layer = layui.layer;
@@ -245,6 +337,8 @@
 
     // 监听表单提交事件
     form.addEventListener('submit', function (event) {
+      if (isDownloading === true) return
+      isDownloading = true
       // 阻止默认的表单提交行为
       event.preventDefault();
       // 获取表单数据
@@ -253,7 +347,16 @@
       for (const item of formData.entries()) {
         data = { ...data, [item[0]]: item[1] }
       }
+      //判断番号是否存在
+      const isExist = designations.includes(data.name.match(/[a-zA-Z]*-[0-9]{3}/)[0])
+      if (isExist) {
+        isDownloading = false
+        return layer.msg('番号已存在')
+      }
+      //存储历史记录
+      setLocalStore(data, util)
       let loadIndex
+      // 发送ajax请求
       $.ajax({
         url: '/search',
         method: 'post',
@@ -269,13 +372,12 @@
           // 显示等待组件
           layer.msg('下载完成')
           layer.close(loadIndex);
+          isDownloading = false
         },
         error: function (err) {
-          console.log(err);
           layer.close(loadIndex);
         }
       })
-
     })
     const typeItem = document.querySelectorAll('.typeItem')
 
@@ -286,7 +388,6 @@
         })
         this.classList.add('active')
         const type = res.className.split(' ')[1]
-        console.log(type);
         const input = document.querySelector(`input#${type}`)
         input.checked = true
         const headerItem = document.querySelector('textarea[name="headers"]')
@@ -317,7 +418,87 @@
         })
       },
     })
+    // 查看历史
+    // 事件
+    util.on('lay-on', {
+      'lookHistory': function () {
+        let html = `还没存历史记录...`
+        if (data) {
+          let content = ''
+          data.forEach(res => {
+            content += $("script#modulesitem").html()
+          })
+          html = `<div class="layui-timeline">${content}</div>`
+        }
+
+        layer.open({
+          type: 1,
+          area: ['700px', '90%'], // 宽高
+          title: '历史记录',
+          anim: 1,
+          content: `<div style="padding: 11px;">${html}</div>`,
+          success: function (layero, index, that) {
+            let i = 0
+            $('.layui-timeline').find('.layui-timeline-item').each((i, item) => {
+              $(item).find('.name').text(data[i].name)
+              $(item).find('.cover').text(data[i].cover)
+              $(item).find('.url').text(data[i].url)
+              $(item).find('h3').text(data[i].downloadTime || '过去（未知）')
+              $(item).find('.copy').on('click', function () {
+                copyToClipboard(data[i].cover)
+                setTimeout(() => {
+                  copyToClipboard(data[i].name)
+                }, 300)
+                setTimeout(() => {
+                  copyToClipboard(data[i].url)
+                  layer.msg('复制成功')
+                }, 600)
+              })
+              $(item).find('.delete').on('click', function () {
+                const item = data.splice(i, 1)
+                localStorage.setItem('Download_History', JSON.stringify(item))
+                //删除元素
+                $(this).parent().parent().parent().parent().remove()
+              })
+            })
+          }
+        });
+      },
+    })
   });
+
+  function setLocalStore(data, util) {
+    const newdate = new Date()
+    var result = util.toDateString(newdate.getTime(), 'yyyy年MM月dd日 hh:mm:ss'); // 2023-01-01
+    data.downloadTime = result
+    const oldStorage = localStorage.getItem('Download_History')
+    if (!oldStorage) {
+      localStorage.setItem('Download_History', JSON.stringify([data]))
+    } else {
+      localStorage.setItem('Download_History', JSON.stringify([data, ...JSON.parse(oldStorage)]))
+    }
+  }
+  function copyToClipboard(text) {
+    var textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+  }
+  // 防抖
+  function debounce(fn, timer) {
+    var debItem = null
+    return function () {
+      var arg = arguments[0]   //获取事件
+      if (debItem) {
+        clearTimeout(debItem)
+      }
+      debItem = setTimeout(() => {
+        fn(arg)              //事件传入函数
+      }, timer)
+    }
+  }
 </script>
 
 </html>

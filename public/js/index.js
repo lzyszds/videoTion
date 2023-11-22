@@ -6,11 +6,10 @@ $(document).ready(function () {
   console.log($('.coverList li').eq(0).data('all'));
   const player = window.player
   setTimeout(() => {
-    $("video").show()
+    $("#video").show()
   }, 500)
   // 给li列表添加点击事件,鼠标划入选择封面事件
   liClick()
-
   let listData = [], initData = []
   layui.use(['form', 'layer'], function () {
     const form = layui.form;
@@ -49,6 +48,9 @@ $(document).ready(function () {
         layer.close(layer.escIndex ? layer.escIndex[0] : 0);
       }
     });
+    $('#close').on('click', function () {
+      layer.close(layer.escIndex ? layer.escIndex[0] : 0);
+    })
   })
   $('.coverList').find('li').each((index, res) => {
     const data = dataReturn(res)
@@ -63,6 +65,7 @@ $(document).ready(function () {
   $("#search").on('click', function (e) {
     e.preventDefault()
     const val = $("input[name='title']").val()
+    console.log(`lzy  listData:`, listData)
     const listDataSort = fuzzySearch(val, listData)
     if (!listDataSort.length) {
       layer.msg('未搜索到相关内容')
@@ -131,19 +134,23 @@ $(document).ready(function () {
     $('ul').find('li').each((i, res) => {
 
       $(res).on('mouseenter', debounce(function (event) {
-
         const img = $(res).find('img')
-        const cover = img.data('cover')
+        const video = $(res).find('video')
+        const cover = video.data('src')
         if (cover) {
-          $(res).find('img').attr('src', cover)
+          video.attr('src', cover)
         }
+        img.hide()
+        video.show()
         return
       }, 50))
       $(res).on('mouseleave', debounce(function (event) {
-
         const img = $(res).find('img')
-        const cover = img.data('cover')
-        $(res).find('img').attr('src', cover.replace('png', 'jpg'))
+        const video = $(res).find('video')
+        $(res).find('video').attr('src', '')
+        img.show()
+        video.hide()
+        return
       }, 10))
     })
   }
@@ -159,8 +166,9 @@ $(document).ready(function () {
   }
 
   function domHandle(arr) {
-    console.log(`lzy  arr:`, arr)
     $('.coverList ul').html('')
+    console.log(`lzy  arr:`, arr)
+
     arr.forEach((item, index) => {
       $('.coverList ul').append(`
           <li data-time="${item.stampTime}">
@@ -169,7 +177,8 @@ $(document).ready(function () {
               <span>${item.datails.time}</span>
               <span>${item.datails.size}</span>
             </p>
-            <img src="${item.img}" data-url="${item.url}" data-cover="${item.cover}" alt="">
+            <img src="${item.cover}" data-url="${item.url}" alt="">
+            <video style="display: none;" autoplay muted  src="" data-src="${item.preview}"></video>
             <h4>${item.name}</h4>
           </li>
           `)
@@ -194,9 +203,9 @@ $(document).ready(function () {
     return {
       stampTime: $(res).data('time'),
       name: $(res).find('h4').text(),
-      img: $(res).find('img').attr('src'),
+      cover: $(res).find('img').attr('src'),
       url: $(res).find('img').data('url'),
-      cover: $(res).find('img').data('cover'),
+      preview: $(res).find('video').data('src'),
       datails: {
         time: $(res).find('span').eq(1).text(),
         size: $(res).find('span').eq(2).text()
